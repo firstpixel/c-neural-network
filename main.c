@@ -1,3 +1,30 @@
+/*
+Licensed under the MIT License given below.
+Copyright 2023 Daniel Lidstrom
+Modified by Gil Beyruth, Copyright 2024
+
+CODE MODIFIED TO ADD CHECKPOINTING AND TO SAVE NETWORK PARAMETERS TO A BINARY FILE
+ALSO ADDED FUNCTIONS TO LOAD NETWORK PARAMETERS FROM A BINARY FILE
+ALSO ADDED SIGMOID PRIME FUNCTION AND VELOCITY ARRAYS TO TRAINER STRUCT
+ALSO ADDED FUNCTION TO PRINT NETWORK PARAMETERS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the “Software”), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+
 // main.c
 #include "neural.h"
 #include <stdlib.h>
@@ -9,8 +36,9 @@ uint32_t P = 2147483647;
 uint32_t A = 16807;
 uint32_t current = 1;
 
-#define TOTAL_ITERATIONS 10000000
 #define CHECKPOINT_INTERVAL 100000
+#define ITERS 40000
+#define ITERS2 (ITERS + 4960000)
 
 double Rand() {
     current = (uint64_t)current * A % P;
@@ -54,8 +82,6 @@ static uint32_t and_op(uint32_t i, uint32_t j)   { return i & j; }
 static uint32_t nor_op(uint32_t i, uint32_t j)   { return 1 - (i | j); }
 static uint32_t nand_op(uint32_t i, uint32_t j)  { return 1 - (i & j); }
 
-#define ITERS 40000
-#define ITERS2 (ITERS + 4960000)
 
 int main() {
     /* Create a network with 2 inputs, 10 hidden neurons, and 6 outputs
